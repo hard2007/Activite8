@@ -1,0 +1,48 @@
+import pandas as pd
+import matplotlib.pyplot as mt
+import numpy as np
+
+# Importer le fichier CSV
+qi=pd.read_csv("qualite_industrielle.csv")
+
+# Explorer sa structure et ses données
+print(qi)
+print(qi.shape)
+print(qi.info())
+
+# Vérifier les valeurs manquantes et les doublons
+print(qi.isnull().sum())
+print(qi.duplicated().sum())
+
+# Identifier les principales variables liées à la qualité
+print(qi.columns)
+
+# Nettoyer les données si nécessaire
+if qi.duplicated().sum() > 0:
+    qi = qi.drop_duplicates()
+# Sauvegarder le fichier de données nettoyé sous qualite_industrielle_nettoyee.csv
+qi.to_csv("qualite_industrielle_nettoyee.csv",index=False)
+
+# Rechargement des données propres  
+qin=pd.read_csv("qualite_industrielle_nettoyee.csv")
+print(qin)
+
+# Création et affichage des figures
+mt.figure(1)
+h=qin.groupby("Produit")["Nb_Non_Conformites"].sum()
+h.plot(kind="bar")
+mt.tight_layout()
+mt.xticks(rotation=0)
+
+mt.figure(2)
+label=(["Nb_de_produit_défectueux","Nb_de_produit_sain"])
+y=np.array([qin["Nb_Defauts"].sum(),qin["Nb_Produits_Controle"].sum()-qin["Nb_Defauts"].sum()])
+mt.pie(y,labels=label)
+
+mt.figure(3)
+i=qin["ID_Controle"]
+t=qin["Taux_Defauts_pct"]
+mt.plot(i,t)
+mt.xticks(rotation=90)
+
+mt.show()
